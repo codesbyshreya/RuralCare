@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RuralCare | Intelligent Doctor, Ambulance & Medicine Dispatch Engine</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- TOPBAR & TELEMETRY STRIP -->
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-icon">
+                <!-- Healthcare Operations Vector Shield -->
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;">
+                    <path d="M12 2l7 3.5v6.5c0 5-3.5 9-7 10-3.5-1-7-5-7-10V5.5L12 2z"/>
+                    <path d="M12 7v8"/>
+                    <path d="M8 11h8"/>
+                </svg>
+            </div>
+            <div>
+                <h1>RuralCare <span>Engine</span></h1>
+                <p>Doctor, Ambulance & Medicine Routing Platform</p>
+            </div>
+        </div>
+
+        <div class="telemetry-bar">
+            <div class="telemetry-item">
+                <span class="t-label">Queue / Waiting</span>
+                <strong id="waitingPatients">0</strong>
+            </div>
+            <div class="telemetry-item critical-pill">
+                <span class="t-label">Critical Tier</span>
+                <strong id="criticalPatients">0</strong>
+            </div>
+            <div class="telemetry-item">
+                <span class="t-label">Ambulance Fleet</span>
+                <strong id="availableAmbulances">4</strong>
+            </div>
+            <div class="telemetry-item">
+                <span class="t-label">Regional Beds</span>
+                <strong id="availableBeds">12</strong>
+            </div>
+            <div class="system-badge">
+                <span class="status-dot"></span>
+                <span>SYSTEM ONLINE</span>
+            </div>
+
+            <!-- Light / Dark Mode Toggle Button -->
+            <button id="themeToggle" class="btn-theme" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+                <svg id="themeIcon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="main-container">
+
+        <!-- UPPER WORKSPACE: DISPATCH CONTROLS + TOPOLOGY MAP -->
+        <div class="workspace-grid">
+
+            <!-- LEFT PANEL: DISPATCH CONTROLLER & EDGE-CASE SIMULATOR -->
+            <section class="card panel-controls">
+                <div class="card-header">
+                    <div>
+                        <p class="card-label">SIMULATION DISPATCH</p>
+                        <h3>Emergency Influx</h3>
+                    </div>
+                    <span class="badge-tag">CONCURRENT</span>
+                </div>
+
+                <form id="dispatchForm" class="form-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patientLocation">Patient Node</label>
+                            <select id="patientLocation">
+                                <option value="A" selected>Village A</option>
+                                <option value="B">Village B</option>
+                                <option value="C">Village C</option>
+                                <option value="D">Village D</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="urgency">Emergency Urgency</label>
+                            <select id="urgency">
+                                <option value="critical">Critical (Tier 1)</option>
+                                <option value="urgent" selected>Urgent (Tier 2)</option>
+                                <option value="normal">Normal (Tier 3)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="specialist">Required Specialist</label>
+                            <select id="specialist">
+                                <option value="cardiology" selected>Cardiologist</option>
+                                <option value="general">General Physician</option>
+                                <option value="neurology">Neurologist</option>
+                                <option value="orthopedics">Orthopedic</option>
+                                <option value="pediatrics">Pediatrician</option>
+                                <option value="trauma">Trauma Specialist</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="medicine">Medicine Supply</label>
+                            <select id="medicine">
+                                <option value="cardiac" selected>Cardiac Care Kit</option>
+                                <option value="basic">General Medical Kit</option>
+                                <option value="neurological">Neurological Support Kit</option>
+                                <option value="orthopedic">Orthopedic & Pain Kit</option>
+                                <option value="pediatric">Pediatric Care Pack</option>
+                                <option value="trauma">Trauma & Hemostatic Kit</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="dispatchButton" class="btn-dispatch">
+                        <span>
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;">
+                                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v7h2"/>
+                                <circle cx="7" cy="17" r="2"/>
+                                <path d="M9 17h6"/>
+                                <circle cx="17" cy="17" r="2"/>
+                            </svg>
+                        </span> DISPATCH AMBULANCE & ROUTE PATIENT
+                    </button>
+                </form>
+
+                <!-- ROAD BLOCKAGE TESTING -->
+                <div class="blockage-section">
+                    <p class="card-label">EDGE CASE TESTING: ROAD BLOCKAGE</p>
+                    <div class="blockage-buttons">
+                        <button type="button" class="btn-outline" onclick="toggleRoadBlock('A', 'B')">Toggle Road A ↔ B</button>
+                        <button type="button" class="btn-outline" onclick="toggleRoadBlock('C', 'D')">Toggle Road C ↔ D</button>
+                    </div>
+                </div>
+
+                <div id="dispatchMessage" class="dispatch-message"></div>
+            </section>
+
+            <!-- RIGHT PANEL: INTERACTIVE GRAPH MAP -->
+            <section class="card panel-map">
+                <div class="card-header">
+                    <div>
+                        <p class="card-label">WEIGHTED GRAPH VISUALIZER</p>
+                        <h3>Dynamic Routing Mesh (Dijkstra)</h3>
+                    </div>
+                    <div class="map-legend">
+                        <span><i class="legend-route"></i> Dispatched Route</span>
+                        <span><i class="legend-road"></i> Active Road</span>
+                        <span><i class="legend-blocked"></i> Blocked Road</span>
+                    </div>
+                </div>
+
+                <div id="map">
+                    <svg id="roads"></svg>
+
+                    <!-- Village Nodes -->
+                    <div class="location village" id="A">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#38bdf8"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                                <circle cx="12" cy="10" r="3" fill="#38bdf8" />
+                            </svg>
+                        </span>
+                        <span class="tag">Village A</span>
+                    </div>
+
+                    <div class="location village" id="B">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#38bdf8"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                                <circle cx="12" cy="10" r="3" fill="#38bdf8" />
+                            </svg>
+                        </span>
+                        <span class="tag">Village B</span>
+                    </div>
+
+                    <div class="location village" id="C">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#38bdf8"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                                <circle cx="12" cy="10" r="3" fill="#38bdf8" />
+                            </svg>
+                        </span>
+                        <span class="tag">Village C</span>
+                    </div>
+
+                    <div class="location village" id="D">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#38bdf8"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                                <circle cx="12" cy="10" r="3" fill="#38bdf8" />
+                            </svg>
+                        </span>
+                        <span class="tag">Village D</span>
+                    </div>
+
+                    <!-- Medical Facility Nodes -->
+                    <!-- H1: West Clinic (Primary Care Cross) -->
+                    <div class="location hospital" id="H1">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#10b981"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="18" height="18" x="3" y="3" rx="4" />
+                                <path d="M12 8v8" />
+                                <path d="M8 12h8" />
+                            </svg>
+                        </span>
+                        <span class="tag">H1 (West Clinic)</span>
+                    </div>
+
+                    <!-- H2: North Regional (Regional Hospital Campus) -->
+                    <div class="location hospital" id="H2">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#f59e0b"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 18h12" />
+                                <path d="M6 22h12" />
+                                <rect width="16" height="16" x="4" y="2" rx="2" />
+                                <path d="M10 8h4" />
+                                <path d="M12 6v4" />
+                                <path d="M10 14h4" />
+                            </svg>
+                        </span>
+                        <span class="tag">H2 (North Reg.)</span>
+                    </div>
+
+                    <!-- H3: South Trauma (Cardiac & Critical Emergency) -->
+                    <div class="location hospital" id="H3">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ef4444"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                                <path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27" />
+                            </svg>
+                        </span>
+                        <span class="tag">H3 (South Trauma)</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- MIDDLE METRICS: PRIORITY QUEUE & CAPACITY MONITOR -->
+        <div class="status-grid">
+
+            <section class="card">
+                <div class="card-header-sm">
+                    <p class="card-label">PRIORITY QUEUE (LOGARITHMIC SORT)</p>
+                    <span class="badge-tag">SLA WINDOWS</span>
+                </div>
+                <div id="pendingRequestsList" class="queue-list">
+                    <div class="empty-state">
+                        <span>
+                            <!-- Dynamic SLA Chronometer Dial -->
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 6px;">
+                                <circle cx="12" cy="13" r="8"/>
+                                <path d="M12 9v4l2.5 1.5"/>
+                                <path d="M10 2h4"/>
+                                <path d="M12 2v3"/>
+                            </svg>
+                            SLA Target: Priority Queue Active
+                        </span>
+                        <p>Priority queue empty. All emergency SLA targets active.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="card-header-sm">
+                    <p class="card-label">HOSPITAL CAPACITY & SPECIALIST SHIFTS</p>
+                </div>
+                <div id="hospitalStatus" class="resource-stack"></div>
+            </section>
+
+            <section class="card">
+                <div class="card-header-sm">
+                    <p class="card-label">FLEET STATUS & REAL-TIME TRACKING</p>
+                </div>
+                <div id="ambulanceStatus" class="resource-stack"></div>
+            </section>
+
+        </div>
+
+        <!-- BOTTOM PANEL: EXPLAINABLE AI & COST BREAKDOWN LOG -->
+        <section class="card decision-section">
+            <div class="card-header">
+                <div>
+                    <p class="card-label">EXPLAINABLE AI & COST TRANSPARENCY</p>
+                    <h3>Algorithmic Decision Log & Cost Breakdown Breadcrumbs</h3>
+                </div>
+                <span class="badge-tag">MIN COST: TRAVEL + WAIT TIME</span>
+            </div>
+
+            <div id="decisionLog" class="decision-log-container">
+                <div class="empty-state">
+                    <span>
+                        <!-- Algorithmic Waypoint Route Path -->
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 6px;">
+                            <circle cx="6" cy="18" r="3"/>
+                            <circle cx="18" cy="6" r="3"/>
+                            <path d="M9 18h3a4 4 0 0 0 4-4V9"/>
+                        </svg>
+                        Fastest Route Selected
+                    </span>
+                    <p>No dispatch decisions logged yet. Execute an emergency influx to view graph routing and cost breakdown.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
