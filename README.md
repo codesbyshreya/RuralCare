@@ -1,12 +1,12 @@
  # RuralCare 🚑
 
-> A real-time emergency routing, resource allocation, and ambulance dispatch simulation engine for rural healthcare logistics.
+> A prototype of a real-time emergency routing, resource allocation, and ambulance dispatch simulation engine for rural healthcare logistics.
 
 ---------------------------------------------------------------------------------------------------------------------------------
 
 ## The Core Problem
 
-In rural healthcare networks, reaching the physically closest clinic is often the wrong operational decision:
+In rural healthcare networks, reaching the physically closest clinic is often the wrong decision:
 
 1. **Missing Specialist:** The nearest clinic might not have the required on-duty doctor (e.g., Cardiology or Trauma).
 2. **Supply Depletion:** The specific emergency medicine or life-support pack may be out of stock.
@@ -81,8 +81,8 @@ Execute these scenarios directly on the dashboard to test the routing heuristics
 
 ## Tech Stack & Architecture
 
-* **Frontend:** Vanilla JavaScript (ES6+), HTML5, CSS3 Variables (Light/Dark themes)
-* **Data Structures & Algorithms:** Graph Adjacency Lists, Dijkstra Shortest Path, Min-Priority Queue
+* **Frontend:** HTML5, CSS3 (CSS Grid / Flexbox / CSS Variables for Light & Dark mode), SVG for dynamic road lines and medical node icons
+* **Data Structures & Algorithms:** Dijkstra Shortest Path, Priority Queue, Graph Adjacency List
 * **Rendering Engine:** Responsive DOM overlays paired with dynamic inline SVG vector networks
 
 ---------------------------------------------------------------------------------------------------------------------------------
@@ -97,6 +97,6 @@ Execute these scenarios directly on the dashboard to test the routing heuristics
 
 ## AI Tools & Development Workflow
 
-* **ChatGPT (OpenAI):** Core architecture breakdown, Dijkstra edge traversal, and timer-driven simulated resource recovery.
-* **Claude (Anthropic):** Telemetry interface design, component structure, capacity stacks, and decision log layout.
-* **Gemini (Google AI):** Topology refinement, vector icon system integration, light/dark theme design, and technical documentation.
+* **ChatGPT (OpenAI):** Used for initial problem breakdown, roadmap planning, and logic scripting (including timer-based releases for occupied beds and ambulances).
+* **Claude (Anthropic):** Used for UI component ideation, providing design ideas for fleet tracking badges, hospital capacity panels, and decision breadcrumbs.
+* **Gemini (Google AI):** Used for map topology cleanup, semantic entity renaming, specialist-to-medicine matrix mapping, vector SVG icon refactoring, and light/dark theme implementation.
