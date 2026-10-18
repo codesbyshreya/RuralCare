@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RuralCare - Migration Validation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #101827;
+      color: #f1f5f9;
+      padding: 30px;
+    }
+    .panel {
+      max-width: 650px;
+      margin: auto;
+      padding: 24px;
+      background: #1e293b;
+      border-radius: 12px;
+    }
+    .item {
+      padding: 14px;
+      margin: 12px 0;
+      background: #334155;
+      border-radius: 8px;
+    }
+    .note {
+      color: #fbbf24;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h1>RuralCare</h1>
+    <h2>Data Migration Validation</h2>
+    <p>Monitor migration from the EC2 source database to Amazon RDS.</p>
+
+    <div class="item">
+      <strong>Source:</strong> MariaDB on Amazon EC2
+    </div>
+    <div class="item">
+      <strong>Target:</strong> Amazon RDS for MariaDB
+    </div>
+    <div class="item">
+      <strong>Migration method:</strong> AWS DMS Full Load + CDC
+    </div>
+
+    <p class="note">
+      Not connected yet. Live status and record counts will appear
+      after the backend API and database replication are configured.
+    </p>
+  </div>
+</body>
+</html>
