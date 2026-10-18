@@ -1,32 +1,35 @@
+const API_BASE_URL =
+    "https://troops-filing-eagle-bullet.trycloudflare.com";
+
 // 1. ROAD NETWORK
 let graph = {
-    A:  [ 
-        { node: "B", weight: 10 }, 
-        { node: "C", weight: 15 }, 
-        { node: "H1", weight: 3 } 
+    A: [
+        { node: "B", weight: 10 },
+        { node: "C", weight: 15 },
+        { node: "H1", weight: 3 }
     ],
-    B:  [ 
-        { node: "A", weight: 10 }, 
-        { node: "C", weight: 6 },  
-        { node: "H2", weight: 14 } 
+    B: [
+        { node: "A", weight: 10 },
+        { node: "C", weight: 6 },
+        { node: "H2", weight: 14 }
     ],
-    C:  [ 
-        { node: "A", weight: 15 }, 
-        { node: "B", weight: 6 },  
-        { node: "D", weight: 10 } 
+    C: [
+        { node: "A", weight: 15 },
+        { node: "B", weight: 6 },
+        { node: "D", weight: 10 }
     ],
-    D:  [ 
-        { node: "C", weight: 10 }, 
-        { node: "H3", weight: 7 } 
+    D: [
+        { node: "C", weight: 10 },
+        { node: "H3", weight: 7 }
     ],
-    H1: [ 
-        { node: "A", weight: 3 } 
+    H1: [
+        { node: "A", weight: 3 }
     ],
-    H2: [ 
-        { node: "B", weight: 14 } 
+    H2: [
+        { node: "B", weight: 14 }
     ],
-    H3: [ 
-        { node: "D", weight: 7 } 
+    H3: [
+        { node: "D", weight: 7 }
     ]
 };
 
@@ -144,7 +147,7 @@ function getPath(previous, start, destination) {
 
 // 5. QUALIFICATION & COST MATCHING
 function findQualifiedHospitals(patient) {
-    return Object.values(hospitals).filter(h => 
+    return Object.values(hospitals).filter(h =>
         h.beds > 0 &&
         h.specialists.includes(patient.specialist) &&
         h.medicines.includes(patient.medicine)
@@ -174,10 +177,10 @@ function findNearestAmbulance(patientLocation) {
 function dispatchPatient(patient) {
     const qualified = findQualifiedHospitals(patient);
     if (qualified.length === 0) {
-        return { 
-            success: false, 
-            reason: "hospital", 
-            message: `No facility currently has on-duty '${patient.specialist}', supply pack '${patient.medicine}', and available beds.` 
+        return {
+            success: false,
+            reason: "hospital",
+            message: `No facility currently has on-duty '${patient.specialist}', supply pack '${patient.medicine}', and available beds.`
         };
     }
 
@@ -296,7 +299,7 @@ function processPendingRequests() {
 }
 
 // 8. ROAD CLOSURE
-window.toggleRoadBlock = function(from, to) {
+window.toggleRoadBlock = function (from, to) {
     const key = [from, to].sort().join("-");
     if (blockedRoads.has(key)) {
         blockedRoads.delete(key);
@@ -545,7 +548,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    document.getElementById("dispatchForm").addEventListener("submit", (e) => {
+
+    document.getElementById("dispatchForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const patient = {
@@ -554,17 +558,72 @@ document.addEventListener("DOMContentLoaded", () => {
             urgency: document.getElementById("urgency").value,
             specialist: document.getElementById("specialist").value,
             medicine: document.getElementById("medicine").value,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            time: new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            })
         };
 
+        // Keep the existing local dispatch algorithm.
         const result = dispatchPatient(patient);
-        if (result.success) {
-            showDispatchMessage(`[DISPATCHED] Unit ${result.ambulanceId} assigned to Village ${patient.location} ➔ ${result.hospitalName}`, "success");
-        } else {
-            addPatientToQueue(patient);
-            showDispatchMessage(`[QUEUED] Request placed in priority heap: ${result.message}`, "warning");
+        const hospitalDbId = { H1: 1, H2: 2, H3: 3 }[result.hospital] || null;
+        const ambulanceDbId = { AMB1: 1, AMB2: 2, AMB3: 3, AMB4: 4 }[result.ambulanceKey] || null;
+        // Save a synthetic demo request to the AWS database.
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/requests`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    patient_name: "RuralCare Demo Patient",
+                    contact_number: null,
+                    emergency_type: `${patient.urgency} - ${patient.specialist} - ${patient.medicine}`,
+                    location: `Village ${patient.location}`,
+                    hospital_id: null,
+                    ambulance_id: null
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Database save failed");
+            }
+
+            console.log("Demo request saved to AWS RDS:", data.request_id);
+
+            if (result.success) {
+                showDispatchMessage(
+                    `[DISPATCHED] Unit ${result.ambulanceId} assigned to Village ${patient.location} ➔ ${result.hospitalName}. Demo request saved.`,
+                    "success"
+                );
+            } else {
+                addPatientToQueue(patient);
+                showDispatchMessage(
+                    `[QUEUED] ${result.message} Demo request saved to database.`,
+                    "warning"
+                );
+            }
+        } catch (error) {
+            console.error("AWS request save failed:", error);
+
+            if (result.success) {
+                showDispatchMessage(
+                    `[DISPATCHED LOCALLY] Unit ${result.ambulanceId} assigned, but database save failed. Please check the connection.`,
+                    "warning"
+                );
+            } else {
+                addPatientToQueue(patient);
+                showDispatchMessage(
+                    `[QUEUED LOCALLY] ${result.message} Database save failed.`,
+                    "warning"
+                );
+            }
         }
     });
+
 });
 
 window.addEventListener("resize", drawRoads);
