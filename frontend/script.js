@@ -75,10 +75,34 @@ const hospitals = {
 
 // 3. FLEET STATUS
 const ambulances = {
-    AMB1: { id: "AMB-01", location: "A", available: true, status: "Available" },
-    AMB2: { id: "AMB-02", location: "B", available: true, status: "Available" },
-    AMB3: { id: "AMB-03", location: "C", available: true, status: "Available" },
-    AMB4: { id: "AMB-04", location: "D", available: true, status: "Available" }
+    AMB1: {
+        id: "AMB-01",
+        station: "A",
+        location: "A",
+        available: true,
+        status: "Available"
+    },
+    AMB2: {
+        id: "AMB-02",
+        station: "B",
+        location: "B",
+        available: true,
+        status: "Available"
+    },
+    AMB3: {
+        id: "AMB-03",
+        station: "C",
+        location: "C",
+        available: true,
+        status: "Available"
+    },
+    AMB4: {
+        id: "AMB-04",
+        station: "D",
+        location: "D",
+        available: true,
+        status: "Available"
+    }
 };
 
 let patientQueue = [];
@@ -398,14 +422,21 @@ function renderHospitalResources() {
 function renderAmbulanceResources() {
     const container = document.getElementById("ambulanceStatus");
     if (!container) return;
+
     container.innerHTML = Object.values(ambulances).map(a => `
         <div class="resource-row">
-            <strong>${a.id} (Station ${a.location})</strong>
-            <span class="resource-badge ${!a.available ? 'busy' : ''}">${a.status}</span>
+            <div>
+                <strong>${a.id} (Station ${a.station})</strong><br>
+                <small style="color:var(--text-muted);font-size:10px;">
+                    Current Location: ${a.location}
+                </small>
+            </div>
+            <span class="resource-badge ${!a.available ? 'busy' : ''}">
+                ${a.status}
+            </span>
         </div>
     `).join("");
 }
-
 function renderPendingQueue() {
     const container = document.getElementById("pendingRequestsList");
     if (!container) return;
